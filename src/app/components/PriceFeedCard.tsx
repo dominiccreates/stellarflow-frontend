@@ -4,6 +4,7 @@ import React, { useEffect, useState, useCallback } from "react";
 import { RefreshCw } from "lucide-react";
 import { useProgressBar } from "./TopLoadingBar";
 import { useDebounce } from "../hooks/useDebounce";
+import { useErrorTimeout } from "../hooks/useErrorTimeout";
 import { useSocketConnection, useSocketData } from "./providers/SocketProvider";
 import { Shimmer } from "@/components/skeletons/Shimmer";
 
@@ -92,7 +93,7 @@ const PriceFeedCard: React.FC<PriceFeedCardProps> = ({
 }) => {
   const [data, setData] = useState<PriceFeedData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { error, setError } = useErrorTimeout({ timeoutMs: 5000 });
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [filterInput, setFilterInput] = useState("");
