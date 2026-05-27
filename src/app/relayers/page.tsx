@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useDebounce } from '../hooks/useDebounce';
+import { useTransformedCustomAddressField } from '@/app/hooks/useTransformedData';
 import { 
   Activity, 
   Plus, 
@@ -43,8 +44,10 @@ export default function RelayersPage() {
   }, [debouncedSearch]);
 
   // Pre-compute shortened addresses on data ingestion to avoid render-time string slicing
-  const transformedRelayers = useMemo(
-    () => useTransformedCustomAddressField(MOCK_RELAYERS, 'address'),
+  const shortenedAddressMap = useMemo<Record<string, string>>(
+    () => Object.fromEntries(
+      useTransformedCustomAddressField(MOCK_RELAYERS, 'address').map(r => [r.id, r.shortenedAddress])
+    ),
     []
   );
 
@@ -105,8 +108,8 @@ export default function RelayersPage() {
                 <tr key={relayer.id} className="hover:bg-[#1c2128] transition-colors group">
                   <td className="px-6 py-4">
                     <div className="font-medium text-blue-400">{relayer.name}</div>
-                    {/* PERFORMANCE OPTIMIZATION: Use pre-computed shortened address instead of runtime string slicing */}
-                    <div className="text-xs text-gray-500 font-mono">{relayer.shortenedAddress}</div>
+                    {/* PERFORMANCE OPTIMIZATION: O(1) map lookup instead of O(n) array scan */}
+                    <div className="text-xs text-gray-500 font-mono">{shortenedAddressMap[relayer.id]}</div>
                   </td>
                   <td className="px-6 py-4">
                     <StatusBadge status={relayer.status} />

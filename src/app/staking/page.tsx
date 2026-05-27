@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useDebounce } from '../hooks/useDebounce';
+import { useTransformedCustomAddressField } from '@/app/hooks/useTransformedData';
 import { 
   ShieldCheck, 
   Coins, 
@@ -50,8 +51,10 @@ export default function StakingPage() {
   }, [debouncedSearch]);
 
   // Pre-compute shortened addresses on data ingestion to avoid render-time string slicing
-  const transformedStakers = useMemo(
-    () => useTransformedCustomAddressField(MOCK_STAKERS, 'operatorAddress'),
+  const shortenedAddressMap = useMemo<Record<string, string>>(
+    () => Object.fromEntries(
+      useTransformedCustomAddressField(MOCK_STAKERS, 'operatorAddress').map(s => [s.id, s.shortenedAddress])
+    ),
     []
   );
 
@@ -118,8 +121,8 @@ export default function StakingPage() {
                 <tr key={node.id} className="hover:bg-[#1c2128] transition-colors group">
                   <td className="px-6 py-4">
                     <div className="font-medium text-gray-200">{node.nodeName}</div>
-                    {/* PERFORMANCE OPTIMIZATION: Use pre-computed shortened address instead of runtime string slicing */}
-                    <div className="text-xs text-gray-500 font-mono">{node.shortenedAddress}</div>
+                    {/* PERFORMANCE OPTIMIZATION: O(1) map lookup instead of O(n) array scan */}
+                    <div className="text-xs text-gray-500 font-mono">{shortenedAddressMap[node.id]}</div>
                   </td>
                   <td className="px-6 py-4 text-sm font-mono text-gray-300">
                     {node.stakedAmountXLM.toLocaleString()} XLM
