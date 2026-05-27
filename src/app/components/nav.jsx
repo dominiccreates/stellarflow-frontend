@@ -10,6 +10,7 @@ import { useProgressBar } from "./TopLoadingBar";
 const Nav = memo(() => {
   const hasAnomaly = true;
   const router = useRouter();
+  const pathname = usePathname();
   const { start, done } = useProgressBar();
 
   const handleConnectWallet = useCallback(async () => {
@@ -74,6 +75,13 @@ const Nav = memo(() => {
           <Link
             href="/admin/settings"
             prefetch={false}
+            onFocus={() => router.prefetch('/admin/settings')}
+            onMouseEnter={() => {
+              if (pathname !== '/admin/settings') router.prefetch('/admin/settings')
+            }}
+            onPointerEnter={() => {
+              if (pathname !== '/admin/settings') router.prefetch('/admin/settings')
+            }}
             onMouseEnter={() => router.prefetch("/admin/settings")}
             aria-label="Admin settings"
             className="p-2 rounded-xl hover:bg-zinc-800 transition-colors"
